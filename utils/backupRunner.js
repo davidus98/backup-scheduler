@@ -34,8 +34,13 @@ export async function runBackupNow(sourcePath) {
   try {
     await zipDirectory(sourcePath, tempZipPath);
     await uploadToMinio(tempZipPath, `backups/${zipName}`);
-    await fs.remove(tempZipPath);
   } catch (err) {
-    console.error("❌ Erorr at backup:", err.message);
+    console.error("❌ Error at backup:", err.message);
+  } finally {
+    try {
+      await fs.remove(tempZipPath);
+    } catch (removeErr) {
+      console.error("❌ Failed to clean up temp file:", removeErr.message);
+    }
   }
 }
